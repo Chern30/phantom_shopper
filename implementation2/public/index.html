@@ -544,7 +544,7 @@
       if (!base64 && !url) return null;
       const src = base64
         ? `data:image/png;base64,${base64}`
-        : `https://s0.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1200`;
+        : `https://image.thum.io/get/width/1200/${url}`;
       return (
         <div className="rounded-lg overflow-hidden border border-slate-700 bg-slate-800 mt-3">
           {/* fake browser chrome */}
