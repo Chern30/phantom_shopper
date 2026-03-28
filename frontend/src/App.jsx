@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
-import CampaignSetup from './pages/CampaignSetup.jsx'
+import Home from './pages/Home.jsx'
+import ExperimentSetup from './pages/ExperimentSetup.jsx'
 import CampaignStatus from './pages/CampaignStatus.jsx'
 
 export default function App() {
@@ -15,8 +16,9 @@ export default function App() {
       </header>
       <main className="app-main">
         <Routes>
-          <Route path="/" element={<CampaignSetup />} />
-          <Route path="/campaign/:id" element={<CampaignStatus />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/setup" element={<ExperimentSetup />} />
+          <Route path="/experiment/:id" element={<CampaignStatus />} />
         </Routes>
       </main>
     </div>
