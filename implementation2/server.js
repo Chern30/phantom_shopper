@@ -392,6 +392,29 @@ app.use(express.static(join(__dirname, 'public')))
 // REST
 app.get('/api/config', (_req, res) => res.json({ thumioAuthKey: THUMIO_AUTH_KEY ?? null }))
 
+app.get('/api/screenshot', async (req, res) => {
+  const { url } = req.query
+  if (!url) return res.status(400).send('url required')
+  if (!THUMIO_AUTH_KEY) return res.status(503).send('THUMIO_AUTH_KEY not set')
+  const thumUrl = `https://image.thum.io/get/auth/${THUMIO_AUTH_KEY}/width/1200/${url}`
+  console.log('[screenshot] fetching:', thumUrl)
+  try {
+    const r = await fetch(thumUrl)
+    console.log('[screenshot] status:', r.status, 'type:', r.headers.get('content-type'))
+    if (!r.ok) {
+      const body = await r.text()
+      console.error('[screenshot] error body:', body.slice(0, 200))
+      return res.status(r.status).send(body)
+    }
+    res.setHeader('Content-Type', r.headers.get('content-type') ?? 'image/jpeg')
+    res.setHeader('Cache-Control', 'public, max-age=300')
+    r.body.pipeTo(new WritableStream({ write(chunk) { res.write(chunk) }, close() { res.end() } }))
+  } catch (err) {
+    console.error('[screenshot] fetch error:', err.message)
+    res.status(500).send(err.message)
+  }
+})
+
 app.get('/api/agents', (_req, res) => res.json(Object.values(agentState)))
 
 app.get('/api/agents/:id', (req, res) => {
