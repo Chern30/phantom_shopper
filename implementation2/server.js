@@ -281,7 +281,7 @@ async function runAgent(persona) {
       pageState = await browsePage(id, currentUrl, step)
     } catch (err) {
       emit(id, 'agent:error', { step, phase: 'tinyfish', message: err.message })
-      updateAgent(id, { status: 'error' })
+      updateAgent(id, { status: 'error', errorMessage: err.message, errorPhase: 'tinyfish' })
       return
     }
 
@@ -291,7 +291,7 @@ async function runAgent(persona) {
       decision = await decide(id, persona, pageState, step, history)
     } catch (err) {
       emit(id, 'agent:error', { step, phase: 'openai', message: err.message })
-      updateAgent(id, { status: 'error' })
+      updateAgent(id, { status: 'error', errorMessage: err.message, errorPhase: 'openai' })
       return
     }
 
@@ -321,13 +321,16 @@ async function runAgent(persona) {
     } else if (decision.action === 'click') {
       const chosen = (pageState.links ?? {})[String(decision.index)]
       if (!chosen) {
-        emit(id, 'agent:error', { step, phase: 'click', message: `Link index ${decision.index} not found` })
-        updateAgent(id, { status: 'error' })
+        const msg = `Link index ${decision.index} not found`
+        emit(id, 'agent:error', { step, phase: 'click', message: msg })
+        updateAgent(id, { status: 'error', errorMessage: msg, errorPhase: 'click' })
         return
       }
       currentUrl = chosen.url
     } else {
-      updateAgent(id, { status: 'error' })
+      const msg = `Unknown action: ${decision.action}`
+      updateAgent(id, { status: 'error', errorMessage: msg, errorPhase: 'openai' })
+      emit(id, 'agent:error', { step, phase: 'openai', message: msg })
       return
     }
   }
