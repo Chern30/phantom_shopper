@@ -1,6 +1,13 @@
 {
   "type": "module",
+  "scripts": {
+    "dev": "concurrently \"node --watch server.js\" \"npm run dev --prefix frontend\"",
+    "start": "concurrently \"node server.js\" \"npm run preview --prefix frontend\""
+  },
   "dependencies": {
     "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }

@@ -16,8 +16,8 @@ export default function CampaignStatus() {
 
     async function init() {
       try {
-        const res = await fetch(`/api/campaign/${id}/status`)
-        if (!res.ok) throw new Error(`Campaign not found (${res.status})`)
+        const res = await fetch(`/api/experiment/${id}/status`)
+        if (!res.ok) throw new Error(`Experiment not found (${res.status})`)
         const data = await res.json()
         if (cancelled) return
         setAgents(indexById(data.agents))
@@ -28,7 +28,7 @@ export default function CampaignStatus() {
       }
 
       // Open SSE
-      const es = new EventSource(`/api/campaign/${id}/stream`)
+      const es = new EventSource(`/api/experiment/${id}/stream`)
       esRef.current = es
 
       es.addEventListener('step', e => {
@@ -44,7 +44,7 @@ export default function CampaignStatus() {
       es.onerror = () => {
         // SSE will auto-reconnect; only flag if we get a hard close
         if (es.readyState === EventSource.CLOSED) {
-          setError('Lost connection to campaign stream.')
+          setError('Lost connection to experiment stream.')
         }
       }
     }
@@ -64,7 +64,7 @@ export default function CampaignStatus() {
     <>
       <div className="status-header">
         <div className="status-header-left">
-          <h1 className="page-title">Campaign Live</h1>
+          <h1 className="page-title">Experiment Live</h1>
           <div className="campaign-id">ID: {id}</div>
         </div>
         <div className="status-badge">
@@ -88,7 +88,11 @@ export default function CampaignStatus() {
       ) : (
         <div className="agent-grid">
           {agentList.map(agent => (
-            <AgentCard key={agent.agentId} agent={agent} />
+            <AgentCard
+              key={agent.agentId}
+              agent={agent}
+              onClick={() => navigate(`/experiment/${id}/agent/${agent.agentId}`)}
+            />
           ))}
         </div>
       )}
@@ -96,7 +100,7 @@ export default function CampaignStatus() {
       {campaignDone && (
         <div style={{ marginTop: 32, textAlign: 'center' }}>
           <Link to="/" className="btn-primary" style={{ display: 'inline-block', textDecoration: 'none' }}>
-            New Campaign
+            New Experiment
           </Link>
         </div>
       )}
