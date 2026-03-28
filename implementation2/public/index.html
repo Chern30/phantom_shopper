@@ -244,7 +244,7 @@
 
     // ── Agent Page ────────────────────────────────────────────────────────────
 
-    function AgentPage({ agentId }) {
+    function AgentPage({ agentId, thumioAuthKey }) {
       const [agentInfo, setAgentInfo] = useState(null);
       const [history, setHistory] = useState([]);
       const [inProgress, setInProgress] = useState(null);
@@ -384,10 +384,10 @@
                 )}
 
                 {history.map(entry => (
-                  <StepCard key={entry.step} entry={entry} />
+                  <StepCard key={entry.step} entry={entry} thumioAuthKey={thumioAuthKey} />
                 ))}
 
-                {inProgress && <InProgressCard inProgress={inProgress} />}
+                {inProgress && <InProgressCard inProgress={inProgress} streamingUrl={agentInfo?.streamingUrl} thumioAuthKey={thumioAuthKey} />}
 
                 {(isDone || isError) && history.length > 0 && (
                   <JourneyEndCard lastEntry={lastEntry} status={agentInfo.status} totalSteps={history.length}
@@ -540,11 +540,13 @@
 
     // ── Screenshot helper ─────────────────────────────────────────────────────
 
-    function PageScreenshot({ url, base64 }) {
+    function PageScreenshot({ url, base64, thumioAuthKey }) {
       if (!base64 && !url) return null;
       const src = base64
         ? `data:image/png;base64,${base64}`
-        : `https://image.thum.io/get/width/1200/${url}`;
+        : thumioAuthKey
+          ? `https://image.thum.io/get/auth/${thumioAuthKey}/width/1200/${url}`
+          : `https://image.thum.io/get/width/1200/${url}`;
       return (
         <div className="rounded-lg overflow-hidden border border-slate-700 bg-slate-800 mt-3">
           {/* fake browser chrome */}
@@ -565,7 +567,7 @@
 
     // ── Completed step card ───────────────────────────────────────────────────
 
-    function StepCard({ entry }) {
+    function StepCard({ entry, thumioAuthKey }) {
       const [linksOpen, setLinksOpen] = useState(false);
       const linkCount = Object.keys(entry.links ?? {}).length;
 
@@ -597,7 +599,7 @@
               <span className="text-xs text-slate-600">browsed page</span>
             </div>
             <div className="px-5 pb-4">
-              <PageScreenshot url={entry.url} base64={entry.screenshot_base64} />
+              <PageScreenshot url={entry.url} base64={entry.screenshot_base64} thumioAuthKey={thumioAuthKey} />
               <p className="mt-3 text-sm text-slate-300 leading-relaxed">{entry.page_text}</p>
               {linkCount > 0 && (
                 <div className="mt-3">
@@ -651,7 +653,7 @@
 
     // ── In-progress step card ─────────────────────────────────────────────────
 
-    function InProgressCard({ inProgress }) {
+    function InProgressCard({ inProgress, streamingUrl, thumioAuthKey }) {
       return (
         <div className="rounded-2xl border border-blue-800/50 overflow-hidden ring-1 ring-blue-500/10">
           {/* Step header */}
@@ -686,15 +688,28 @@
               )}
               {inProgress.pageState ? (
                 <>
-                  <PageScreenshot url={inProgress.url} base64={inProgress.pageState?.screenshot_base64} />
+                  <PageScreenshot url={inProgress.url} base64={inProgress.pageState?.screenshot_base64} thumioAuthKey={thumioAuthKey} />
                   <p className="mt-3 text-sm text-slate-300 leading-relaxed">{inProgress.pageState.page_text}</p>
                 </>
-              ) : (
-                inProgress.phase === 'tinyfish' && (
-                  <div className="mt-3 h-32 rounded-lg bg-slate-800/60 border border-slate-700 flex items-center justify-center">
-                    <p className="text-xs text-slate-600 italic">Loading page…</p>
+              ) : inProgress.phase === 'tinyfish' && streamingUrl ? (
+                <div className="mt-3 rounded-lg overflow-hidden border border-slate-700 bg-slate-800" style={{height: '280px'}}>
+                  <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 border-b border-slate-700">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+                    <span className="ml-2 text-xs text-blue-400 font-mono truncate flex-1">● LIVE</span>
                   </div>
-                )
+                  <iframe
+                    src={streamingUrl}
+                    className="w-full"
+                    style={{height: '244px', border: 'none'}}
+                    sandbox="allow-scripts allow-same-origin"
+                  />
+                </div>
+              ) : inProgress.phase === 'tinyfish' && (
+                <div className="mt-3 h-32 rounded-lg bg-slate-800/60 border border-slate-700 flex items-center justify-center">
+                  <p className="text-xs text-slate-600 italic">Loading page…</p>
+                </div>
               )}
             </div>
           </div>
@@ -732,11 +747,16 @@
     // ── App router ────────────────────────────────────────────────────────────
 
     function App() {
+      const [thumioAuthKey, setThumioAuthKey] = useState(null);
       const route = useRoute();
+
+      useEffect(() => {
+        fetch('/api/config').then(r => r.json()).then(d => setThumioAuthKey(d.thumioAuthKey));
+      }, []);
 
       if (route.startsWith('/agent/')) {
         const agentId = route.slice('/agent/'.length);
-        return <AgentPage agentId={agentId} />;
+        return <AgentPage agentId={agentId} thumioAuthKey={thumioAuthKey} />;
       }
 
       return <Dashboard />;

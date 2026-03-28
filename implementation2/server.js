@@ -26,6 +26,7 @@ try {
 
 const TINYFISH_API_KEY = process.env.TINYFISH_API_KEY
 const OPENAI_API_KEY   = process.env.OPENAI_API_KEY
+const THUMIO_AUTH_KEY  = process.env.THUMIO_AUTH_KEY
 const TINYFISH_BASE    = 'https://agent.tinyfish.ai'
 const PORT             = 3000
 const MAX_STEPS        = 12
@@ -388,6 +389,8 @@ app.use(express.json())
 app.use(express.static(join(__dirname, 'public')))
 
 // REST
+app.get('/api/config', (_req, res) => res.json({ thumioAuthKey: THUMIO_AUTH_KEY ?? null }))
+
 app.get('/api/agents', (_req, res) => res.json(Object.values(agentState)))
 
 app.get('/api/agents/:id', (req, res) => {
