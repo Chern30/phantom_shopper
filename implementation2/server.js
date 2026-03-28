@@ -170,7 +170,8 @@ Use absolute URLs. Exclude: nav chrome, login/signup, cookie notices, footer leg
   const decoder = new TextDecoder()
   let buffer    = ''
   let rawResult = null
-  let eventType = null
+  let eventType          = null
+  let capturedStreamingUrl = null
 
   while (true) {
     const { done, value } = await reader.read()
@@ -195,9 +196,9 @@ Use absolute URLs. Exclude: nav chrome, login/signup, cookie notices, footer leg
       const type = eventType || event.type
 
       if (type === 'STREAMING_URL') {
-        const streamingUrl = event.url ?? event.streaming_url
-        updateAgent(agentId, { streamingUrl })
-        emit(agentId, 'tinyfish:streaming', { step, streamingUrl })
+        capturedStreamingUrl = event.url ?? event.streaming_url
+        updateAgent(agentId, { streamingUrl: capturedStreamingUrl })
+        emit(agentId, 'tinyfish:streaming', { step, streamingUrl: capturedStreamingUrl })
       } else if (type === 'PROGRESS') {
         const message = event.purpose ?? event.message ?? '...'
         emit(agentId, 'tinyfish:progress', { step, message })
@@ -217,6 +218,23 @@ Use absolute URLs. Exclude: nav chrome, login/signup, cookie notices, footer leg
   if (!match) throw new Error(`Cannot parse TinyFish result: ${text.slice(0, 300)}`)
 
   const pageState = JSON.parse(match[0])
+
+  // Attempt to capture a screenshot from the streaming session before it closes
+  if (capturedStreamingUrl) {
+    console.log(`[screenshot] streaming URL: ${capturedStreamingUrl}`)
+    try {
+      const snapRes = await fetch(`${capturedStreamingUrl}/screenshot`)
+      console.log(`[screenshot] status: ${snapRes.status}, type: ${snapRes.headers.get('content-type')}`)
+      if (snapRes.ok && snapRes.headers.get('content-type')?.includes('image')) {
+        const buf = await snapRes.arrayBuffer()
+        pageState.screenshot_base64 = Buffer.from(buf).toString('base64')
+        console.log(`[screenshot] captured ${buf.byteLength} bytes`)
+      }
+    } catch (err) {
+      console.log(`[screenshot] failed: ${err.message}`)
+    }
+  }
+
   emit(agentId, 'tinyfish:complete', { step, pageState })
   return pageState
 }
