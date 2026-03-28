@@ -28,7 +28,8 @@ const TINYFISH_API_KEY = process.env.TINYFISH_API_KEY
 const OPENAI_API_KEY   = process.env.OPENAI_API_KEY
 const TINYFISH_BASE    = 'https://agent.tinyfish.ai'
 const PORT             = 3000
-const MAX_STEPS        = 8
+const MAX_STEPS        = 12
+const MIN_STEPS        = 6
 
 // ── Personas ───────────────────────────────────────────────────────────────
 
@@ -59,7 +60,7 @@ Option 2 — start a new search:
 }
 
 Use "search" when the page is a dead end or has no relevant links.
-Visit at least 5 pages. When done, use action "search" with query "DONE".`,
+When you have explored enough and found what you need, use action "search" with query "DONE".`,
   },
   {
     id: 'single-man',
@@ -87,7 +88,7 @@ Option 2 — start a new search:
 }
 
 Use "search" when the page is a dead end or has no relevant links.
-Visit at least 5 pages. When you have found a couch you would realistically buy, use action "search" with query "DONE".`,
+When you have found a couch you would realistically buy, use action "search" with query "DONE".`,
   },
 ]
 
@@ -222,7 +223,7 @@ Use absolute URLs. Exclude: nav chrome, login/signup, cookie notices, footer leg
 
 // ── OpenAI: decide next action ─────────────────────────────────────────────
 
-async function decide(agentId, persona, pageState, step, history) {
+async function decide(agentId, persona, pageState, step, history, nudge = null) {
   updateAgent(agentId, { status: 'openai', streamingUrl: null })
   emit(agentId, 'openai:start', { step })
 
@@ -230,12 +231,26 @@ async function decide(agentId, persona, pageState, step, history) {
     .map(([i, l]) => `[${i}] ${l.text}  —  ${l.url}`)
     .join('\n')
 
-  const userMessage = `Step ${step}\n\nPAGE CONTENT:\n${pageState.page_text}\n\nAVAILABLE LINKS:\n${linksText || '(none)'}\n\nWhat do you do next?`
+  const progress = step < MIN_STEPS
+    ? `[Page ${step} of ${MIN_STEPS} minimum — keep exploring, do NOT finish yet]`
+    : `[Page ${step} — you may finish if you have found what you need]`
+
+  const userMessage = `${progress}\n\nPAGE CONTENT:\n${pageState.page_text}\n\nAVAILABLE LINKS:\n${linksText || '(none)'}\n\nWhat do you do next?`
 
   const historyMessages = history.flatMap(h => [
     { role: 'user', content: `Step ${h.step}\n\nPAGE CONTENT:\n${h.page_text}\n\nWhat do you do next?` },
     { role: 'assistant', content: JSON.stringify({ reasoning: h.reasoning, action: h.action, index: h.index, query: h.query }) },
   ])
+
+  const messages = [
+    { role: 'system', content: persona.systemPrompt },
+    ...historyMessages,
+    { role: 'user', content: userMessage },
+  ]
+
+  if (nudge) {
+    messages.push({ role: 'user', content: nudge })
+  }
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -243,11 +258,7 @@ async function decide(agentId, persona, pageState, step, history) {
     body: JSON.stringify({
       model: 'gpt-4o',
       response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: persona.systemPrompt },
-        ...historyMessages,
-        { role: 'user', content: userMessage },
-      ],
+      messages,
     }),
   })
 
@@ -309,6 +320,19 @@ async function runAgent(persona) {
     history.push(entry)
     agentState[id].history.push(entry)
     emit(id, 'step:complete', entry)
+
+    // Enforce minimum exploration — override premature DONE
+    if (decision.action === 'search' && decision.query === 'DONE' && step < MIN_STEPS) {
+      const remaining = MIN_STEPS - step
+      const nudge = `You chose to finish, but you've only visited ${step} page${step === 1 ? '' : 's'}. You must explore at least ${remaining} more page${remaining === 1 ? '' : 's'} before finishing. Keep browsing.`
+      try {
+        decision = await decide(id, persona, pageState, step, history, nudge)
+      } catch (err) {
+        emit(id, 'agent:error', { step, phase: 'openai', message: err.message })
+        updateAgent(id, { status: 'error', errorMessage: err.message, errorPhase: 'openai' })
+        return
+      }
+    }
 
     // Resolve next URL
     if (decision.action === 'search') {
