@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #0F1117; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #0F1117; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.header {
+  background: #1A1F2E; padding: 10pt 40pt 8pt 40pt;
+  border-bottom: 2pt solid #00D4AA; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.slide-label { color: #00D4AA; font-size: 9pt; font-weight: bold; letter-spacing: 2pt; text-transform: uppercase; margin-bottom: 2pt; }
+.slide-title { color: #FFFFFF; font-size: 19pt; font-weight: bold; }
+.live-badge { background: #00D4AA20; border: 1pt solid #00D4AA; border-radius: 20pt; padding: 4pt 12pt; }
+.live-text { color: #00D4AA; font-size: 10pt; font-weight: bold; }
+.body { flex: 1; padding: 12pt 40pt 30pt 40pt; display: flex; gap: 16pt; overflow: hidden; }
+.left-col { width: 175pt; display: flex; flex-direction: column; gap: 6pt; }
+.stat-row { display: flex; gap: 6pt; }
+.stat-box { background: #1A1F2E; border-radius: 5pt; padding: 7pt 10pt; flex: 1; }
+.stat-label { color: #64748B; font-size: 7pt; text-transform: uppercase; letter-spacing: 1pt; margin-bottom: 2pt; }
+.stat-num { font-size: 18pt; font-weight: bold; }
+.stat-purchased { color: #00D4AA; }
+.stat-competitor { color: #FF6B35; }
+.stat-gaveup { color: #94A3B8; }
+.stat-active { color: #F59E0B; }
+.bar-section { background: #1A1F2E; border-radius: 5pt; padding: 8pt 10pt; flex: 1; }
+.bar-label { color: #64748B; font-size: 7pt; text-transform: uppercase; letter-spacing: 1pt; margin-bottom: 6pt; }
+.bar-row { display: flex; align-items: center; gap: 4pt; margin-bottom: 3pt; }
+.bar-name { color: #94A3B8; font-size: 8pt; width: 70pt; }
+.bar-track { flex: 1; background: #0F1117; border-radius: 3pt; height: 5pt; }
+.bar-fill { height: 5pt; border-radius: 3pt; }
+.bar-val { color: #64748B; font-size: 8pt; width: 24pt; text-align: right; }
+.right-col { flex: 1; display: flex; flex-direction: column; gap: 7pt; }
+.feed-title { color: #64748B; font-size: 8pt; text-transform: uppercase; letter-spacing: 2pt; }
+.feed-item { background: #1A1F2E; border-radius: 5pt; padding: 8pt 10pt; border-left: 3pt solid; }
+.fi-insp { border-color: #4A5568; }
+.fi-cons { border-color: #F59E0B; }
+.fi-win { border-color: #00D4AA; }
+.fi-loss { border-color: #FF6B35; }
+.fi-header { display: flex; justify-content: space-between; margin-bottom: 2pt; }
+.fi-agent { color: #FFFFFF; font-size: 9pt; font-weight: bold; }
+.fi-platform { color: #4A5568; font-size: 8pt; }
+.fi-phase { font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1pt; margin-bottom: 2pt; }
+.ph-insp { color: #4A5568; }
+.ph-cons { color: #F59E0B; }
+.ph-dec { color: #00D4AA; }
+.ph-loss { color: #FF6B35; }
+.fi-text { color: #94A3B8; font-size: 9pt; line-height: 1.3; }
+</style>
+</head>
+<body>
+<div class="header">
+  <div>
+    <p class="slide-label">Live Run View</p>
+    <p class="slide-title">Real-time agent journeys in progress</p>
+  </div>
+  <div class="live-badge"><p class="live-text">LIVE — 30 agents</p></div>
+</div>
+<div class="body">
+  <div class="left-col">
+    <div class="stat-row">
+      <div class="stat-box">
+        <p class="stat-label">Your brand</p>
+        <p class="stat-num stat-purchased">4</p>
+      </div>
+      <div class="stat-box">
+        <p class="stat-label">Competitor</p>
+        <p class="stat-num stat-competitor">11</p>
+      </div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <p class="stat-label">Gave up</p>
+        <p class="stat-num stat-gaveup">3</p>
+      </div>
+      <div class="stat-box">
+        <p class="stat-label">Shopping</p>
+        <p class="stat-num stat-active">12</p>
+      </div>
+    </div>
+    <div class="bar-section">
+      <p class="bar-label">Win rate by persona</p>
+      <div class="bar-row">
+        <p class="bar-name">Premium</p>
+        <div class="bar-track"><div class="bar-fill" style="width:80%; background:#00D4AA;"></div></div>
+        <p class="bar-val">80%</p>
+      </div>
+      <div class="bar-row">
+        <p class="bar-name">Impulse</p>
+        <div class="bar-track"><div class="bar-fill" style="width:75%; background:#00D4AA;"></div></div>
+        <p class="bar-val">75%</p>
+      </div>
+      <div class="bar-row">
+        <p class="bar-name">Research</p>
+        <div class="bar-track"><div class="bar-fill" style="width:28%; background:#F59E0B;"></div></div>
+        <p class="bar-val">28%</p>
+      </div>
+      <div class="bar-row">
+        <p class="bar-name">Prudent</p>
+        <div class="bar-track"><div class="bar-fill" style="width:17%; background:#FF6B35;"></div></div>
+        <p class="bar-val">17%</p>
+      </div>
+      <div class="bar-row">
+        <p class="bar-name">Budget</p>
+        <div class="bar-track"><div class="bar-fill" style="width:3%; background:#EF4444;"></div></div>
+        <p class="bar-val">0%</p>
+      </div>
+    </div>
+  </div>
+  <div class="right-col">
+    <p class="feed-title">Live agent feed</p>
+    <div class="feed-item fi-insp">
+      <div class="fi-header">
+        <p class="fi-agent">Prudent Parent #1</p>
+        <p class="fi-platform">Pinterest</p>
+      </div>
+      <p class="fi-phase ph-insp">Phase 1 — Inspiration</p>
+      <p class="fi-text">"Saving competitor mood boards for 'scandinavian nursery ideas'. No purchase intent yet. Dwell: 12 min."</p>
+    </div>
+    <div class="feed-item fi-cons">
+      <div class="fi-header">
+        <p class="fi-agent">Research Obsessive #2</p>
+        <p class="fi-platform">Reddit</p>
+      </div>
+      <p class="fi-phase ph-cons">Phase 2 — Consideration</p>
+      <p class="fi-text">"r/malelivingspace recommends competitor sofa as 'best minimalist under $1k'. Opened their site in a new tab."</p>
+    </div>
+    <div class="feed-item fi-win">
+      <div class="fi-header">
+        <p class="fi-agent">Premium Seeker #2</p>
+        <p class="fi-platform">Google</p>
+      </div>
+      <p class="fi-phase ph-dec">PURCHASED your brand — $1,200</p>
+      <p class="fi-text">"Journey: 3 days, 14 sessions. Decisive moment: editorial on Architectural Digest."</p>
+    </div>
+    <div class="feed-item fi-loss">
+      <div class="fi-header">
+        <p class="fi-agent">Budget Hunter #4</p>
+        <p class="fi-platform">Google Shopping</p>
+      </div>
+      <p class="fi-phase ph-loss">PURCHASED competitor — $149</p>
+      <p class="fi-text">"Your product at $389, no differentiators. Left in 8 seconds. Bought IKEA."</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

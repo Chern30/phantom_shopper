@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #0F1117; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #0F1117; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.header {
+  background: #1A1F2E; padding: 10pt 40pt 8pt 40pt;
+  border-bottom: 2pt solid #A78BFA; flex-shrink: 0;
+}
+.slide-label { color: #A78BFA; font-size: 9pt; font-weight: bold; letter-spacing: 2pt; text-transform: uppercase; margin-bottom: 2pt; }
+.slide-title { color: #FFFFFF; font-size: 19pt; font-weight: bold; }
+.body { flex: 1; padding: 12pt 40pt 30pt 40pt; display: flex; gap: 16pt; overflow: hidden; }
+.tiers { display: flex; gap: 12pt; flex: 1; }
+.tier {
+  flex: 1; border-radius: 8pt; padding: 12pt 14pt;
+  display: flex; flex-direction: column;
+}
+.tier-starter { background: #1A1F2E; border: 1pt solid #2D3748; }
+.tier-growth { background: #1A1F2E; border: 2pt solid #A78BFA; }
+.tier-enterprise { background: #1A2030; border: 1pt solid #2D3748; }
+.tier-header { display: flex; align-items: center; gap: 6pt; margin-bottom: 6pt; }
+.tier-name-starter { color: #94A3B8; font-size: 9pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1pt; }
+.tier-name-growth { color: #A78BFA; font-size: 9pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1pt; }
+.tier-name-enterprise { color: #00D4AA; font-size: 9pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1pt; }
+.popular-wrap { background: #A78BFA; border-radius: 4pt; padding: 1pt 6pt; display: inline-block; }
+.popular-text { color: #FFFFFF; font-size: 7pt; font-weight: bold; }
+.tier-price { font-size: 24pt; font-weight: bold; margin-bottom: 1pt; }
+.price-starter { color: #94A3B8; }
+.price-growth { color: #A78BFA; }
+.price-enterprise { color: #00D4AA; }
+.tier-period { color: #4A5568; font-size: 9pt; margin-bottom: 10pt; }
+.feature { display: flex; gap: 6pt; margin-bottom: 5pt; align-items: flex-start; }
+.f-check { font-size: 9pt; }
+.check-grey { color: #4A5568; }
+.check-purple { color: #A78BFA; }
+.check-teal { color: #00D4AA; }
+.f-text { color: #94A3B8; font-size: 9pt; line-height: 1.3; }
+.right-col { width: 160pt; display: flex; flex-direction: column; justify-content: center; gap: 10pt; }
+.target-box { background: #1A1F2E; border-radius: 8pt; padding: 12pt; }
+.target-title { color: #FFFFFF; font-size: 10pt; font-weight: bold; margin-bottom: 7pt; }
+.target-row { display: flex; gap: 6pt; align-items: flex-start; margin-bottom: 6pt; }
+.t-dot { width: 5pt; height: 5pt; min-width: 5pt; border-radius: 50%; background: #A78BFA; margin-top: 3pt; }
+.t-text { color: #94A3B8; font-size: 9pt; line-height: 1.3; }
+.market-box { background: #A78BFA15; border: 1pt solid #A78BFA40; border-radius: 8pt; padding: 12pt; }
+.market-num { color: #A78BFA; font-size: 20pt; font-weight: bold; }
+.market-label { color: #94A3B8; font-size: 9pt; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="header">
+  <p class="slide-label">Business Model</p>
+  <p class="slide-title">SaaS pricing — target buyer is the CMO</p>
+</div>
+<div class="body">
+  <div class="tiers">
+    <div class="tier tier-starter">
+      <p class="tier-name-starter">Starter</p>
+      <p class="tier-price price-starter">$500</p>
+      <p class="tier-period">per month</p>
+      <div class="feature"><p class="f-check check-grey">+</p><p class="f-text">3 persona archetypes</p></div>
+      <div class="feature"><p class="f-check check-grey">+</p><p class="f-text">Weekly campaign scan</p></div>
+      <div class="feature"><p class="f-check check-grey">+</p><p class="f-text">1 brand tracked</p></div>
+      <div class="feature"><p class="f-check check-grey">+</p><p class="f-text">Journey map + insight cards</p></div>
+      <div class="feature"><p class="f-check check-grey">+</p><p class="f-text">30 agents per run</p></div>
+    </div>
+    <div class="tier tier-growth">
+      <div class="tier-header">
+        <p class="tier-name-growth">Growth</p>
+        <div class="popular-wrap"><p class="popular-text">Most Popular</p></div>
+      </div>
+      <p class="tier-price price-growth">$2,500</p>
+      <p class="tier-period">per month</p>
+      <div class="feature"><p class="f-check check-purple">+</p><p class="f-text">10 persona archetypes</p></div>
+      <div class="feature"><p class="f-check check-purple">+</p><p class="f-text">Daily campaign scans</p></div>
+      <div class="feature"><p class="f-check check-purple">+</p><p class="f-text">3 competitors tracked</p></div>
+      <div class="feature"><p class="f-check check-purple">+</p><p class="f-text">Full journey transcripts</p></div>
+      <div class="feature"><p class="f-check check-purple">+</p><p class="f-text">100 agents per run</p></div>
+    </div>
+    <div class="tier tier-enterprise">
+      <p class="tier-name-enterprise">Enterprise</p>
+      <p class="tier-price price-enterprise">$15k+</p>
+      <p class="tier-period">per month</p>
+      <div class="feature"><p class="f-check check-teal">+</p><p class="f-text">Custom persona definitions</p></div>
+      <div class="feature"><p class="f-check check-teal">+</p><p class="f-text">Real-time monitoring</p></div>
+      <div class="feature"><p class="f-check check-teal">+</p><p class="f-text">Unlimited competitors</p></div>
+      <div class="feature"><p class="f-check check-teal">+</p><p class="f-text">Full API access</p></div>
+      <div class="feature"><p class="f-check check-teal">+</p><p class="f-text">Dedicated analyst support</p></div>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="target-box">
+      <p class="target-title">Target buyer</p>
+      <div class="target-row"><div class="t-dot"></div><p class="t-text">Head of Digital Marketing or CMO</p></div>
+      <div class="target-row"><div class="t-dot"></div><p class="t-text">Brands doing $50M+ revenue</p></div>
+      <div class="target-row"><div class="t-dot"></div><p class="t-text">Already pay this for tools that show less</p></div>
+    </div>
+    <div class="market-box">
+      <p class="market-num">$50B+</p>
+      <p class="market-label">Global martech spend. We replace 3 tools with one consumer-reality platform.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #0F1117; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #0F1117; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.header {
+  background: #1A1F2E; padding: 10pt 40pt 8pt 40pt;
+  border-bottom: 2pt solid #FF6B35; flex-shrink: 0;
+}
+.slide-label { color: #FF6B35; font-size: 9pt; font-weight: bold; letter-spacing: 2pt; text-transform: uppercase; margin-bottom: 2pt; }
+.slide-title { color: #FFFFFF; font-size: 19pt; font-weight: bold; }
+.body { flex: 1; padding: 12pt 40pt 30pt 40pt; display: flex; gap: 14pt; overflow: hidden; }
+.insight-card {
+  flex: 1; background: #1A1F2E; border-radius: 8pt;
+  border: 1pt solid #FF6B35; display: flex; flex-direction: column;
+}
+.card-header {
+  background: #FF6B3520; border-bottom: 1pt solid #FF6B3540;
+  padding: 8pt 14pt; display: flex; align-items: center; gap: 8pt; flex-shrink: 0;
+}
+.badge-wrap { background: #FF6B35; border-radius: 4pt; padding: 2pt 7pt; display: inline-block; }
+.badge-text { color: #FFFFFF; font-size: 8pt; font-weight: bold; }
+.card-heading { color: #FFFFFF; font-size: 12pt; font-weight: bold; }
+.card-body { padding: 10pt 14pt; display: flex; flex-direction: column; gap: 8pt; }
+.stat-row { display: flex; gap: 12pt; }
+.stat { text-align: center; flex: 1; }
+.stat-big { color: #FF6B35; font-size: 20pt; font-weight: bold; }
+.stat-label { color: #64748B; font-size: 7pt; line-height: 1.3; }
+.divider { width: 1pt; background: #2D3748; flex-shrink: 0; }
+.section-label { color: #64748B; font-size: 8pt; text-transform: uppercase; letter-spacing: 1pt; margin-bottom: 4pt; }
+.quote-block {
+  background: #0F1117; border-left: 3pt solid #FF6B35;
+  border-radius: 0 4pt 4pt 0; padding: 6pt 10pt; margin-bottom: 5pt;
+}
+.quote-agent { color: #FF6B35; font-size: 8pt; font-weight: bold; margin-bottom: 2pt; }
+.quote-text { color: #94A3B8; font-size: 9pt; font-style: italic; line-height: 1.3; }
+.fix-box {
+  background: #00D4AA10; border: 1pt solid #00D4AA40; border-radius: 5pt;
+  padding: 8pt 10pt;
+}
+.fix-label { color: #00D4AA; font-size: 8pt; font-weight: bold; text-transform: uppercase; letter-spacing: 1pt; margin-bottom: 3pt; }
+.fix-text { color: #94A3B8; font-size: 9pt; line-height: 1.3; }
+.right-col { width: 185pt; display: flex; flex-direction: column; gap: 8pt; }
+.context-box { background: #1A1F2E; border-radius: 8pt; padding: 10pt 12pt; }
+.context-title { color: #FFFFFF; font-size: 10pt; font-weight: bold; margin-bottom: 8pt; }
+.root-row { display: flex; gap: 6pt; margin-bottom: 6pt; align-items: flex-start; }
+.root-icon { font-size: 12pt; flex-shrink: 0; }
+.root-text { color: #94A3B8; font-size: 9pt; line-height: 1.3; }
+.emphasis { color: #FF6B35; font-weight: bold; }
+.transcript-box { background: #1A1F2E; border-radius: 8pt; padding: 10pt 12pt; }
+.transcript-text { color: #94A3B8; font-size: 9pt; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="header">
+  <p class="slide-label">Example Insight Card</p>
+  <p class="slide-title">What the CMO actually reads</p>
+</div>
+<div class="body">
+  <div class="insight-card">
+    <div class="card-header">
+      <div class="badge-wrap"><p class="badge-text">Critical Drop-off</p></div>
+      <p class="card-heading">Invisible During the Inspiration Phase</p>
+    </div>
+    <div class="card-body">
+      <div class="stat-row">
+        <div class="stat">
+          <p class="stat-big">22</p>
+          <p class="stat-label">of 30 agents never saw you in Phase 1</p>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+          <p class="stat-big">14</p>
+          <p class="stat-label">had competitor affinity before Googling</p>
+        </div>
+        <div class="divider"></div>
+        <div class="stat">
+          <p class="stat-big">6x</p>
+          <p class="stat-label">avg competitor touchpoints before intent</p>
+        </div>
+      </div>
+      <div>
+        <p class="section-label">What agents thought at decision stage</p>
+        <div class="quote-block">
+          <p class="quote-agent">Prudent Parent #1</p>
+          <p class="quote-text">"I've seen [Competitor] everywhere when researching this look. I trust them."</p>
+        </div>
+        <div class="quote-block">
+          <p class="quote-agent">Research Obsessive #3</p>
+          <p class="quote-text">"r/malelivingspace keeps recommending [Competitor]. I haven't heard of this other brand."</p>
+        </div>
+      </div>
+      <div class="fix-box">
+        <p class="fix-label">Recommended fix</p>
+        <p class="fix-text">Invest in top-of-funnel content — Pinterest, Reddit community presence, editorial features. Your brand only appears at Google Shopping, after preferences are already formed.</p>
+      </div>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="context-box">
+      <p class="context-title">Root cause</p>
+      <div class="root-row">
+        <p class="root-icon">-</p>
+        <p class="root-text">Competitors appear in <span class="emphasis">inspiration content</span> — Pinterest, YouTube, Reddit threads</p>
+      </div>
+      <div class="root-row">
+        <p class="root-icon">-</p>
+        <p class="root-text">Your brand <span class="emphasis">only becomes visible</span> at Google Shopping — after preferences form</p>
+      </div>
+      <div class="root-row">
+        <p class="root-icon">-</p>
+        <p class="root-text">Agents have <span class="emphasis">pre-existing trust</span> in competitors discovered weeks earlier</p>
+      </div>
+    </div>
+    <div class="transcript-box">
+      <p class="context-title">Every number is a transcript</p>
+      <p class="transcript-text">Click any stat to read the full agent inner monologue. The proof behind every finding is real browsing behaviour, not an algorithm.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

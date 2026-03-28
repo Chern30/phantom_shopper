@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #0F1117; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #0F1117; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column;
+}
+.header {
+  background: #1A1F2E; padding: 12pt 40pt 10pt 40pt;
+  border-bottom: 2pt solid #FF6B35;
+}
+.slide-label { color: #FF6B35; font-size: 9pt; font-weight: bold; letter-spacing: 2pt; text-transform: uppercase; margin-bottom: 3pt; }
+.slide-title { color: #FFFFFF; font-size: 20pt; font-weight: bold; }
+.body {
+  flex: 1; padding: 14pt 40pt; display: flex; flex-direction: column; justify-content: center;
+}
+.intro { color: #94A3B8; font-size: 11pt; margin-bottom: 14pt; line-height: 1.4; }
+.cards { display: flex; gap: 12pt; }
+.card {
+  flex: 1; background: #1A1F2E; border-radius: 8pt;
+  border-left: 4pt solid #FF6B35; padding: 12pt 14pt;
+}
+.card-num { color: #FF6B35; font-size: 18pt; font-weight: bold; margin-bottom: 4pt; }
+.card-title { color: #FFFFFF; font-size: 11pt; font-weight: bold; margin-bottom: 5pt; }
+.card-body { color: #94A3B8; font-size: 9pt; line-height: 1.4; }
+.bottom-bar {
+  background: #FF6B3515; border-top: 1pt solid #FF6B3540;
+  padding: 8pt 40pt;
+}
+.bottom-text { color: #FF6B35; font-size: 10pt; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="header">
+  <p class="slide-label">The Problem</p>
+  <p class="slide-title">Brand analytics is fundamentally broken</p>
+</div>
+<div class="body">
+  <p class="intro">Brands spend billions on analytics tools that tell them <b>what happened</b>. Nobody tells them <b>what their customers actually experience</b> — before the purchase decision is made.</p>
+  <div class="cards">
+    <div class="card">
+      <p class="card-num">01</p>
+      <p class="card-title">SEO tools lie by omission</p>
+      <p class="card-body">They show keyword rankings — not whether a real shopper discovers you during a genuine purchase journey starting from a lifestyle search.</p>
+    </div>
+    <div class="card">
+      <p class="card-num">02</p>
+      <p class="card-title">Ad platforms grade their own homework</p>
+      <p class="card-body">Google and Meta report impressions, not whether the ad reached the right psychological profile at the right moment of intent.</p>
+    </div>
+    <div class="card">
+      <p class="card-num">03</p>
+      <p class="card-title">Pricing data misses the experience</p>
+      <p class="card-body">Competitor prices are scraped in bulk — not experienced the way a consumer actually encounters and judges them side-by-side.</p>
+    </div>
+  </div>
+</div>
+<div class="bottom-bar">
+  <p class="bottom-text">Our angle: Consumer reality vs. platform-reported reality</p>
+</div>
+</body>
+</html>

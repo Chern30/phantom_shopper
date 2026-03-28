@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #0F1117; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #0F1117; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.header {
+  background: #1A1F2E; padding: 10pt 40pt 8pt 40pt;
+  border-bottom: 2pt solid #00D4AA; flex-shrink: 0;
+}
+.slide-label { color: #00D4AA; font-size: 9pt; font-weight: bold; letter-spacing: 2pt; text-transform: uppercase; margin-bottom: 2pt; }
+.slide-title { color: #FFFFFF; font-size: 19pt; font-weight: bold; }
+.body { flex: 1; padding: 12pt 40pt 30pt 40pt; display: flex; gap: 20pt; overflow: hidden; }
+.left-col { flex: 1; display: flex; flex-direction: column; gap: 0; }
+.right-col { width: 240pt; display: flex; flex-direction: column; gap: 10pt; }
+.build-label { color: #64748B; font-size: 8pt; text-transform: uppercase; letter-spacing: 2pt; margin-bottom: 10pt; }
+.step-wrap { display: flex; gap: 0; margin-bottom: 0; }
+.step-left { display: flex; flex-direction: column; align-items: center; width: 28pt; }
+.step-circle {
+  width: 24pt; height: 24pt; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; font-size: 10pt; flex-shrink: 0;
+}
+.circle-done { background: #00D4AA; }
+.circle-active { background: #FF6B35; }
+.circle-todo { background: #1A1F2E; border: 2pt solid #2D3748; }
+.c-done-text { color: #0F1117; font-size: 10pt; font-weight: bold; }
+.c-active-text { color: #FFFFFF; font-size: 10pt; font-weight: bold; }
+.c-todo-text { color: #4A5568; font-size: 10pt; font-weight: bold; }
+.step-line { width: 2pt; flex: 1; background: #2D3748; min-height: 12pt; }
+.step-right { padding: 2pt 0 12pt 10pt; flex: 1; }
+.step-title { color: #FFFFFF; font-size: 11pt; font-weight: bold; margin-bottom: 2pt; }
+.step-desc { color: #94A3B8; font-size: 9pt; line-height: 1.3; }
+.step-tag-wrap { background: #00D4AA15; border: 1pt solid #00D4AA40; border-radius: 4pt; display: inline-block; padding: 1pt 6pt; margin-top: 3pt; }
+.step-tag-text { color: #00D4AA; font-size: 8pt; font-weight: bold; }
+.demo-box {
+  background: #FF6B3515; border: 2pt solid #FF6B35;
+  border-radius: 8pt; padding: 12pt 14pt;
+}
+.demo-title { color: #FF6B35; font-size: 10pt; font-weight: bold; margin-bottom: 8pt; }
+.demo-text { color: #94A3B8; font-size: 9pt; line-height: 1.5; }
+.demo-moment { color: #FFFFFF; font-weight: bold; }
+.tech-box { background: #1A1F2E; border-radius: 8pt; padding: 12pt 14pt; }
+.tech-title { color: #FFFFFF; font-size: 10pt; font-weight: bold; margin-bottom: 8pt; }
+.tech-row { display: flex; gap: 6pt; align-items: center; margin-bottom: 5pt; }
+.tech-name { color: #A78BFA; font-size: 9pt; font-weight: bold; width: 60pt; }
+.tech-arrow { color: #4A5568; font-size: 9pt; }
+.tech-desc { color: #64748B; font-size: 9pt; }
+</style>
+</head>
+<body>
+<div class="header">
+  <p class="slide-label">Hackathon MVP</p>
+  <p class="slide-title">One complete loop — built today</p>
+</div>
+<div class="body">
+  <div class="left-col">
+    <p class="build-label">What we are building</p>
+    <div class="step-wrap">
+      <div class="step-left">
+        <div class="step-circle circle-done"><p class="c-done-text">1</p></div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <p class="step-title">Campaign input</p>
+        <p class="step-desc">Brand URL + product category. System auto-generates 5 persona archetypes and assigns starting platforms.</p>
+      </div>
+    </div>
+    <div class="step-wrap">
+      <div class="step-left">
+        <div class="step-circle circle-active"><p class="c-active-text">2</p></div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <p class="step-title">Spawn 10 agents via tinyfish</p>
+        <p class="step-desc">2 per persona, mixed starting points. Each begins with a lifestyle search — not a product query.</p>
+        <div class="step-tag-wrap"><p class="step-tag-text">tinyfish API</p></div>
+      </div>
+    </div>
+    <div class="step-wrap">
+      <div class="step-left">
+        <div class="step-circle circle-todo"><p class="c-todo-text">3</p></div>
+        <div class="step-line"></div>
+      </div>
+      <div class="step-right">
+        <p class="step-title">Run journeys to completion</p>
+        <p class="step-desc">Agents surf the web in persona. Decisions logged with consumer-voice explanations at every step.</p>
+      </div>
+    </div>
+    <div class="step-wrap">
+      <div class="step-left">
+        <div class="step-circle circle-todo"><p class="c-todo-text">4</p></div>
+      </div>
+      <div class="step-right">
+        <p class="step-title">Output: journey map + 3 insight cards</p>
+        <p class="step-desc">Visual funnel + plain-English findings. Every stat links to an agent transcript.</p>
+      </div>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="demo-box">
+      <p class="demo-title">The demo moment</p>
+      <p class="demo-text">A persona starts with <span class="demo-moment">"futuristic room inspiration"</span> — zero purchase intent. We trace the full journey to a <span class="demo-moment">competitor purchase</span>. Every CMO in the room will recognise it, because it is exactly how they shop themselves.</p>
+    </div>
+    <div class="tech-box">
+      <p class="tech-title">Tech stack</p>
+      <div class="tech-row">
+        <p class="tech-name">tinyfish API</p>
+        <p class="tech-arrow">-</p>
+        <p class="tech-desc">Agent web browsing</p>
+      </div>
+      <div class="tech-row">
+        <p class="tech-name">Claude</p>
+        <p class="tech-arrow">-</p>
+        <p class="tech-desc">Persona reasoning + insight cards</p>
+      </div>
+      <div class="tech-row">
+        <p class="tech-name">Next.js</p>
+        <p class="tech-arrow">-</p>
+        <p class="tech-desc">Live dashboard + journey map</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #0F1117; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #0F1117; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.header {
+  background: #1A1F2E; padding: 10pt 40pt 8pt 40pt;
+  border-bottom: 2pt solid #FF6B35; flex-shrink: 0;
+}
+.slide-label { color: #FF6B35; font-size: 9pt; font-weight: bold; letter-spacing: 2pt; text-transform: uppercase; margin-bottom: 2pt; }
+.slide-title { color: #FFFFFF; font-size: 19pt; font-weight: bold; }
+.body { flex: 1; padding: 12pt 40pt 30pt 40pt; display: flex; gap: 16pt; overflow: hidden; }
+.left-col { flex: 1; display: flex; flex-direction: column; gap: 10pt; }
+.right-col { width: 210pt; display: flex; flex-direction: column; gap: 10pt; }
+.outcome-row { display: flex; gap: 8pt; }
+.outcome-box { background: #1A1F2E; border-radius: 5pt; padding: 8pt 10pt; flex: 1; text-align: center; }
+.o-num { font-size: 20pt; font-weight: bold; }
+.o-label { color: #64748B; font-size: 8pt; }
+.o-win { color: #00D4AA; }
+.o-loss { color: #FF6B35; }
+.o-grey { color: #94A3B8; }
+.sankey { background: #1A1F2E; border-radius: 6pt; padding: 10pt 12pt; }
+.sankey-title { color: #64748B; font-size: 8pt; text-transform: uppercase; letter-spacing: 1pt; margin-bottom: 8pt; }
+.flow-line { display: flex; align-items: center; gap: 6pt; margin-bottom: 4pt; }
+.fl-label { color: #64748B; font-size: 9pt; width: 150pt; }
+.fl-bar-track { flex: 1; background: #0F1117; border-radius: 3pt; height: 5pt; }
+.fl-bar { height: 5pt; border-radius: 3pt; }
+.fl-count { color: #94A3B8; font-size: 9pt; width: 48pt; text-align: right; }
+.signal-box { background: #1A1F2E; border-radius: 6pt; padding: 10pt 12pt; }
+.signal-title { color: #FFFFFF; font-size: 10pt; font-weight: bold; margin-bottom: 7pt; }
+.signal-row { display: flex; gap: 6pt; align-items: flex-start; margin-bottom: 4pt; }
+.sig-dot { width: 5pt; height: 5pt; min-width: 5pt; border-radius: 50%; margin-top: 3pt; background: #FF6B35; }
+.sig-text { color: #94A3B8; font-size: 9pt; line-height: 1.3; }
+.output-box { background: #00D4AA10; border: 1pt solid #00D4AA30; border-radius: 6pt; padding: 10pt 12pt; }
+.output-title { color: #00D4AA; font-size: 10pt; font-weight: bold; margin-bottom: 4pt; }
+.output-text { color: #94A3B8; font-size: 9pt; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="header">
+  <p class="slide-label">The Report</p>
+  <p class="slide-title">Every journey mapped. Every drop-off explained.</p>
+</div>
+<div class="body">
+  <div class="left-col">
+    <div class="outcome-row">
+      <div class="outcome-box">
+        <p class="o-num o-win">4</p>
+        <p class="o-label">Purchased your brand</p>
+      </div>
+      <div class="outcome-box">
+        <p class="o-num o-loss">11</p>
+        <p class="o-label">Bought competitor</p>
+      </div>
+      <div class="outcome-box">
+        <p class="o-num o-grey">3</p>
+        <p class="o-label">Abandoned</p>
+      </div>
+    </div>
+    <div class="sankey">
+      <p class="sankey-title">Consumer journey funnel — 30 agents</p>
+      <div class="flow-line">
+        <p class="fl-label">Started journey</p>
+        <div class="fl-bar-track"><div class="fl-bar" style="width:100%; background:#4A5568;"></div></div>
+        <p class="fl-count">30 agents</p>
+      </div>
+      <div class="flow-line">
+        <p class="fl-label">Brand seen during inspiration</p>
+        <div class="fl-bar-track"><div class="fl-bar" style="width:27%; background:#F59E0B;"></div></div>
+        <p class="fl-count">8 agents</p>
+      </div>
+      <div class="flow-line">
+        <p class="fl-label">Brand seen during consideration</p>
+        <div class="fl-bar-track"><div class="fl-bar" style="width:47%; background:#F59E0B;"></div></div>
+        <p class="fl-count">14 agents</p>
+      </div>
+      <div class="flow-line">
+        <p class="fl-label">Brand reached at decision stage</p>
+        <div class="fl-bar-track"><div class="fl-bar" style="width:73%; background:#3B82F6;"></div></div>
+        <p class="fl-count">22 agents</p>
+      </div>
+      <div class="flow-line">
+        <p class="fl-label">Converted — your brand</p>
+        <div class="fl-bar-track"><div class="fl-bar" style="width:13%; background:#00D4AA;"></div></div>
+        <p class="fl-count">4 agents</p>
+      </div>
+      <div class="flow-line">
+        <p class="fl-label">Converted — competitor</p>
+        <div class="fl-bar-track"><div class="fl-bar" style="width:37%; background:#FF6B35;"></div></div>
+        <p class="fl-count">11 agents</p>
+      </div>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="signal-box">
+      <p class="signal-title">Signals tracked per journey</p>
+      <div class="signal-row"><div class="sig-dot"></div><p class="sig-text">Brand visibility at each phase</p></div>
+      <div class="signal-row"><div class="sig-dot"></div><p class="sig-text">Competitor ads on brand searches</p></div>
+      <div class="signal-row"><div class="sig-dot"></div><p class="sig-text">Price perception vs. competitors</p></div>
+      <div class="signal-row"><div class="sig-dot"></div><p class="sig-text">First review content encountered</p></div>
+      <div class="signal-row"><div class="sig-dot"></div><p class="sig-text">Retargeting ad effectiveness</p></div>
+      <div class="signal-row"><div class="sig-dot"></div><p class="sig-text">Community sentiment</p></div>
+      <div class="signal-row"><div class="sig-dot"></div><p class="sig-text">Decisive moment before purchase</p></div>
+    </div>
+    <div class="output-box">
+      <p class="output-title">Output: Insight Cards</p>
+      <p class="output-text">Each drop-off generates a plain-English card with root cause and a concrete fix. Every stat links to an agent transcript.</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

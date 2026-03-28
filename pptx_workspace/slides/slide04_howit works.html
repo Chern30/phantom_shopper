@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html { background: #0F1117; }
+body {
+  width: 720pt; height: 405pt; margin: 0; padding: 0;
+  background: #0F1117; font-family: Arial, sans-serif;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.header {
+  background: #1A1F2E; padding: 10pt 40pt 8pt 40pt;
+  border-bottom: 2pt solid #FF6B35; flex-shrink: 0;
+}
+.slide-label { color: #FF6B35; font-size: 9pt; font-weight: bold; letter-spacing: 2pt; text-transform: uppercase; margin-bottom: 2pt; }
+.slide-title { color: #FFFFFF; font-size: 19pt; font-weight: bold; }
+.body { padding: 12pt 40pt 10pt 40pt; display: flex; gap: 20pt; flex: 1; overflow: hidden; }
+.left-col { flex: 1; display: flex; flex-direction: column; gap: 10pt; }
+.right-col { width: 270pt; }
+.step { display: flex; gap: 10pt; align-items: flex-start; }
+.step-num {
+  background: #FF6B35; color: #FFFFFF; font-size: 10pt; font-weight: bold;
+  border-radius: 50%; width: 20pt; height: 20pt; min-width: 20pt;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  margin-top: 1pt;
+}
+.step-title { color: #FFFFFF; font-size: 10pt; font-weight: bold; margin-bottom: 2pt; }
+.step-desc { color: #94A3B8; font-size: 9pt; line-height: 1.35; }
+.step-highlight { color: #FF6B35; }
+.journey-box {
+  background: #1A1F2E; border-radius: 8pt; padding: 12pt 12pt 8pt 12pt;
+  border: 1pt solid #2D3748;
+}
+.journey-title { color: #64748B; font-size: 8pt; font-weight: bold; letter-spacing: 1pt; text-transform: uppercase; margin-bottom: 8pt; }
+.journey-step { display: flex; gap: 8pt; margin-bottom: 6pt; align-items: flex-start; }
+.j-dot { width: 7pt; height: 7pt; min-width: 7pt; border-radius: 50%; margin-top: 2pt; }
+.dot-grey { background: #4A5568; }
+.dot-yellow { background: #F59E0B; }
+.dot-orange { background: #FF6B35; }
+.dot-red { background: #EF4444; }
+.j-label { color: #64748B; font-size: 8pt; text-transform: uppercase; letter-spacing: 1pt; margin-bottom: 1pt; }
+.j-value { color: #E2E8F0; font-size: 9pt; line-height: 1.3; }
+</style>
+</head>
+<body>
+<div class="header">
+  <p class="slide-label">How It Works</p>
+  <p class="slide-title">Agents live as consumers, not shoppers</p>
+</div>
+<div class="body">
+  <div class="left-col">
+    <div class="step">
+      <div class="step-num"><p style="margin:0; color:#fff; font-size:10pt; font-weight:bold;">1</p></div>
+      <div>
+        <p class="step-title">Define the consumer, not the product</p>
+        <p class="step-desc">Personas have lifestyle interests, not search terms. <span class="step-highlight">"Style-conscious 30-year-old furnishing a first apartment."</span></p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"><p style="margin:0; color:#fff; font-size:10pt; font-weight:bold;">2</p></div>
+      <div>
+        <p class="step-title">Agents start from inspiration, not intent</p>
+        <p class="step-desc">Each agent begins with a lifestyle search — <span class="step-highlight">"futuristic room inspiration"</span> — not a product query. Purchase intent emerges naturally.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"><p style="margin:0; color:#fff; font-size:10pt; font-weight:bold;">3</p></div>
+      <div>
+        <p class="step-title">Journeys run to completion</p>
+        <p class="step-desc">Agents continue across Google, Reddit, Pinterest, Amazon until they purchase or give up. Every decision is logged in consumer voice.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num"><p style="margin:0; color:#fff; font-size:10pt; font-weight:bold;">4</p></div>
+      <div>
+        <p class="step-title">Scale delivers confidence</p>
+        <p class="step-desc">30+ agents per run. 100 agents is reportable. Every finding links to a real agent transcript.</p>
+      </div>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="journey-box">
+      <p class="journey-title">Example — furniture brand</p>
+      <div class="journey-step">
+        <div class="j-dot dot-grey"></div>
+        <div>
+          <p class="j-label">Session 1 — Pinterest</p>
+          <p class="j-value">"futuristic room inspiration" — saving mood boards, no intent</p>
+        </div>
+      </div>
+      <div class="journey-step">
+        <div class="j-dot dot-grey"></div>
+        <div>
+          <p class="j-label">Session 3 — Reddit</p>
+          <p class="j-value">r/malelivingspace — competitor mentioned 4× in top thread</p>
+        </div>
+      </div>
+      <div class="journey-step">
+        <div class="j-dot dot-yellow"></div>
+        <div>
+          <p class="j-label">Session 6 — Google</p>
+          <p class="j-value">"minimalist sofa under $800" — intent has formed</p>
+        </div>
+      </div>
+      <div class="journey-step">
+        <div class="j-dot dot-orange"></div>
+        <div>
+          <p class="j-label">Session 8 — Google Shopping</p>
+          <p class="j-value">Your brand at $949. No differentiators in listing.</p>
+        </div>
+      </div>
+      <div class="journey-step">
+        <div class="j-dot dot-red"></div>
+        <div>
+          <p class="j-label">Session 9 — Competitor</p>
+          <p class="j-value">PURCHASED competitor at $799. Already trusted from Reddit.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
