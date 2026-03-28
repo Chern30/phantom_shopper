@@ -24,7 +24,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 // ── Load .env from repo root ───────────────────────────────────────────────
 
 try {
-  const env = readFileSync(join(__dirname, '..', '..', '..', '.env'), 'utf8')
+  const env = readFileSync(join(__dirname, '.env'), 'utf8')
   for (const line of env.split('\n')) {
     const eq = line.indexOf('=')
     if (eq < 1) continue

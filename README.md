@@ -1,3 +1,36 @@
+# Phantom Shopper
+
+> 🚨 Brands are pouring billions into Google and Meta ads — and still asking the same frustrated question:
+>
+> *"The clicks are there. But why didn't they buy?"*
+>
+> Ad platforms hand you data. They never give you reasoning. They'll tell you a customer skipped your listing, but they won't tell you it's because your competitor's value prop felt more urgent to that specific persona. They'll tell you your CTR dropped, but not that your landing page felt untrustworthy to a budget-conscious buyer.
+>
+> And the numbers? Pretty alarming.
+> - 📊 Only $0.36 of every $1 spent on programmatic ads actually reaches a consumer.
+> - 📊 In 2025, ad waste surged 34% to $26.8 billion — and it's growing >20% YOY.
+>
+> The platforms don't have answers. They just tell you to keep testing.
+>
+> In the physical world, brands don't guess. They send in mystery shoppers — real people who experience the brand as a customer would and report back with ground-level truth.
+>
+> So for **#TheTinyFishHackathon**, we asked: why don't we do the same for e-commerce and brands online?
+>
+> We built a system that deploys fleets of AI agents, each with a distinct persona, budget, purchasing logic, and browsing behaviour. These aren't bots clicking links. They are synthetic customers who:
+> - 👉 Search and compare products the way real shoppers do
+> - 👉 Make purchase decisions based on their unique priorities
+> - 👉 Explain exactly why they chose a competitor over you
+> - 👉 Flag where your brand lost the moment, and why
+>
+> Instead of staring at an ad dashboard wondering why your funnel is not converting, you get a direct transcript of the customer's thought process. You see why and where people bounce and exit the site. You spot the missed moments. You get actionable clarity, not just vanity metrics.
+>
+> **No more digital ads black box. No more "test and pray for the best." Just the truth about your digital presence, at scale.**
+>
+> *Built at #TheTinyFishHackathon · Hosted by Acacia College*
+> *#PhantomShopper #TinyFish #OpenAI #BuildInPublic #MarketingAI #AdTech #AI*
+
+---
+
 # Digital Mystery Shopper
 
 > *"Every brand knows their click-through rate. Nobody knows what it's like to be their customer online. We do."*

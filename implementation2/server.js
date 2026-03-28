@@ -195,6 +195,7 @@ Use absolute URLs. Exclude: nav chrome, login/signup, cookie notices, footer leg
       try { event = JSON.parse(raw) } catch { continue }
 
       const type = eventType || event.type
+      console.log(`[tinyfish][${agentId}] event type="${type}" data=${raw.slice(0, 120)}`)
 
       if (type === 'STREAMING_URL') {
         capturedStreamingUrl = event.url ?? event.streaming_url
