@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agent Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+        }
+      }
+    }
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body { background: #020617; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    .pulse-dot { animation: pulse-dot 1.4s ease-in-out infinite; }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen font-sans antialiased">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // ── Routing ──────────────────────────────────────────────────────────────
+
+    function useRoute() {
+      const [route, setRoute] = useState(window.location.hash.slice(1) || '/');
+      useEffect(() => {
+        const handler = () => setRoute(window.location.hash.slice(1) || '/');
+        window.addEventListener('hashchange', handler);
+        return () => window.removeEventListener('hashchange', handler);
+      }, []);
+      return route;
+    }
+
+    function navigate(path) { window.location.hash = path; }
+
+    // ── Status badge ─────────────────────────────────────────────────────────
+
+    const STATUS_CONFIG = {
+      idle:      { label: 'Idle',             bg: 'bg-slate-700',  text: 'text-slate-300',  dot: 'bg-slate-400' },
+      tinyfish:  { label: 'TinyFish Browsing', bg: 'bg-blue-900',   text: 'text-blue-300',   dot: 'bg-blue-400'  },
+      openai:    { label: 'OpenAI Deciding',   bg: 'bg-purple-900', text: 'text-purple-300', dot: 'bg-purple-400' },
+      done:      { label: 'Done',              bg: 'bg-green-900',  text: 'text-green-300',  dot: 'bg-green-400' },
+      error:     { label: 'Error',             bg: 'bg-red-900',    text: 'text-red-300',    dot: 'bg-red-400'   },
+    };
+
+    function StatusBadge({ status, size = 'sm' }) {
+      const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.idle;
+      const isActive = status === 'tinyfish' || status === 'openai';
+      const textSize = size === 'lg' ? 'text-sm' : 'text-xs';
+      return (
+        <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-medium ${cfg.bg} ${cfg.text} ${textSize}`}>
+          <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot} ${isActive ? 'pulse-dot' : ''}`} />
+          {cfg.label}
+        </span>
+      );
+    }
+
+    // ── Dashboard ─────────────────────────────────────────────────────────────
+
+    function Dashboard() {
+      const [agents, setAgents] = useState([]);
+      const [running, setRunning] = useState(false);
+
+      useEffect(() => {
+        const es = new EventSource('/api/events');
+
+        es.addEventListener('snapshot', e => {
+          setAgents(JSON.parse(e.data));
+        });
+
+        // All agent events come through this channel too — update matching agent
+        const updateHandler = e => {
+          try {
+            const data = JSON.parse(e.data);
+            if (!data.id) return;
+            setAgents(prev => prev.map(a => a.id === data.id ? { ...a, ...data } : a));
+          } catch {}
+        };
+
+        ['tinyfish:start', 'openai:start', 'agent:done', 'agent:error', 'agent:started'].forEach(ev => {
+          es.addEventListener(ev, e => {
+            try {
+              const data = JSON.parse(e.data);
+              if (data.id) {
+                setAgents(prev => prev.map(a => {
+                  if (a.id !== data.id) return a;
+                  if (ev === 'tinyfish:start') return { ...a, status: 'tinyfish', currentUrl: data.url };
+                  if (ev === 'openai:start')   return { ...a, status: 'openai' };
+                  if (ev === 'agent:done')      return { ...a, status: 'done' };
+                  if (ev === 'agent:error')     return { ...a, status: 'error' };
+                  if (ev === 'agent:started')   return { ...a, status: 'tinyfish', step: 0, history: [] };
+                  return a;
+                }));
+              }
+            } catch {}
+          });
+        });
+
+        es.addEventListener('tinyfish:start', e => {
+          try {
+            const { step } = JSON.parse(e.data);
+            setAgents(prev => prev.map(a => ({ ...a, step: a.status === 'tinyfish' ? step : a.step })));
+          } catch {}
+        });
+
+        es.addEventListener('step:complete', e => {
+          try {
+            const entry = JSON.parse(e.data);
+            setAgents(prev => prev.map(a => {
+              // We don't know which agent this belongs to from the 'all' channel easily
+              // so we just bump the step count
+              return a;
+            }));
+          } catch {}
+        });
+
+        return () => es.close();
+      }, []);
+
+      const anyRunning = agents.some(a => a.status === 'tinyfish' || a.status === 'openai');
+
+      async function handleRun() {
+        setRunning(true);
+        try {
+          await fetch('/api/run', { method: 'POST' });
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setRunning(false);
+        }
+      }
+
+      return (
+        <div className="min-h-screen bg-slate-950">
+          {/* Header */}
+          <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-10">
+            <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🐟</span>
+                <div>
+                  <h1 className="text-lg font-bold text-white leading-none">Agent Monitor</h1>
+                  <p className="text-xs text-slate-500 mt-0.5">Implementation 2 — OpenAI-Driven Browsing</p>
+                </div>
+              </div>
+              <button
+                onClick={handleRun}
+                disabled={anyRunning || running}
+                className="flex items-center gap-2 px-5 py-2 rounded-lg font-semibold text-sm transition-all
+                  bg-blue-600 hover:bg-blue-500 active:scale-95 text-white
+                  disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600"
+              >
+                {anyRunning ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-blue-300 pulse-dot" />
+                    Running…
+                  </>
+                ) : '▶ Run Agents'}
+              </button>
+            </div>
+          </header>
+
+          {/* Agent cards */}
+          <main className="max-w-6xl mx-auto px-6 py-10">
+            {agents.length === 0 ? (
+              <div className="text-center py-20 text-slate-500">
+                <p className="text-4xl mb-4">🐟</p>
+                <p className="text-lg font-medium">No agents loaded</p>
+                <p className="text-sm mt-1">Click "Run Agents" to start</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {agents.map(agent => (
+                  <AgentCard key={agent.id} agent={agent} />
+                ))}
+              </div>
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    function AgentCard({ agent }) {
+      const steps = agent.history?.length ?? 0;
+      const lastEntry = agent.history?.[agent.history.length - 1];
+
+      return (
+        <div
+          className="group relative bg-slate-900 border border-slate-800 rounded-2xl p-6 cursor-pointer
+            hover:border-slate-600 hover:bg-slate-800/60 transition-all duration-200"
+          onClick={() => navigate(`/agent/${agent.id}`)}
+        >
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-bold text-white">{agent.name}</h2>
+              <p className="text-sm text-slate-400 mt-0.5">{agent.goal}</p>
+            </div>
+            <StatusBadge status={agent.status} />
+          </div>
+
+          <div className="space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-slate-500 w-16 shrink-0">Step</span>
+              <span className="text-white font-mono font-medium">{agent.step}</span>
+              {steps > 0 && <span className="text-slate-600">({steps} completed)</span>}
+            </div>
+
+            {agent.currentUrl && (
+              <div className="flex items-start gap-2">
+                <span className="text-slate-500 w-16 shrink-0 mt-0.5">URL</span>
+                <span className="text-blue-400 font-mono text-xs truncate">{agent.currentUrl}</span>
+              </div>
+            )}
+
+            {lastEntry && (
+              <div className="flex items-start gap-2">
+                <span className="text-slate-500 w-16 shrink-0 mt-0.5">Last</span>
+                <span className="text-slate-300 text-xs line-clamp-2">{lastEntry.reasoning}</span>
+              </div>
+            )}
+          </div>
+
+          <div className="absolute bottom-5 right-5 text-slate-600 group-hover:text-slate-400 transition-colors text-lg">→</div>
+        </div>
+      );
+    }
+
+    // ── Agent Page ────────────────────────────────────────────────────────────
+
+    function AgentPage({ agentId }) {
+      const [agentInfo, setAgentInfo] = useState(null);
+      const [history, setHistory] = useState([]);
+      const [inProgress, setInProgress] = useState(null);
+      const historyEndRef = useRef(null);
+
+      useEffect(() => {
+        const es = new EventSource(`/api/events/${agentId}`);
+
+        es.addEventListener('agent:snapshot', e => {
+          const data = JSON.parse(e.data);
+          setAgentInfo(data);
+          setHistory(data.history ?? []);
+          // Reconstruct inProgress if agent is already mid-step when we connect
+          if (data.status === 'tinyfish' || data.status === 'openai') {
+            setInProgress({
+              step: data.step,
+              url: data.currentUrl,
+              phase: data.status,
+              messages: [],
+              pageState: null,
+              decision: null,
+            });
+          }
+        });
+
+        es.addEventListener('agent:started', () => {
+          setHistory([]);
+          setInProgress(null);
+          setAgentInfo(a => a ? { ...a, status: 'tinyfish', step: 0 } : a);
+        });
+
+        es.addEventListener('tinyfish:start', e => {
+          const { step, url } = JSON.parse(e.data);
+          setAgentInfo(a => a ? { ...a, status: 'tinyfish', currentUrl: url, step } : a);
+          setInProgress({ step, url, phase: 'tinyfish', messages: [], pageState: null, decision: null });
+        });
+
+        es.addEventListener('tinyfish:streaming', e => {
+          const { streamingUrl } = JSON.parse(e.data);
+          setAgentInfo(a => a ? { ...a, streamingUrl } : a);
+        });
+
+        es.addEventListener('tinyfish:progress', e => {
+          const { message } = JSON.parse(e.data);
+          setInProgress(p => p ? { ...p, messages: [...p.messages, message] } : p);
+        });
+
+        es.addEventListener('tinyfish:complete', e => {
+          const { pageState } = JSON.parse(e.data);
+          setInProgress(p => p ? { ...p, pageState } : p);
+          setAgentInfo(a => a ? { ...a, streamingUrl: null } : a);
+        });
+
+        es.addEventListener('openai:start', () => {
+          setAgentInfo(a => a ? { ...a, status: 'openai' } : a);
+          setInProgress(p => p ? { ...p, phase: 'openai' } : p);
+        });
+
+        es.addEventListener('openai:complete', e => {
+          const { decision } = JSON.parse(e.data);
+          setInProgress(p => p ? { ...p, decision } : p);
+        });
+
+        es.addEventListener('step:complete', e => {
+          const entry = JSON.parse(e.data);
+          setHistory(h => [...h, entry]);
+          setInProgress(null);
+        });
+
+        es.addEventListener('agent:done', () => {
+          setAgentInfo(a => a ? { ...a, status: 'done' } : a);
+          setInProgress(null);
+        });
+
+        es.addEventListener('agent:error', e => {
+          const { message } = JSON.parse(e.data);
+          setAgentInfo(a => a ? { ...a, status: 'error' } : a);
+          setInProgress(p => p ? { ...p, error: message } : p);
+        });
+
+        return () => es.close();
+      }, [agentId]);
+
+      // Auto-scroll history to bottom
+      useEffect(() => {
+        historyEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, [history, inProgress]);
+
+      if (!agentInfo) {
+        return (
+          <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+            <p className="text-slate-500">Loading agent…</p>
+          </div>
+        );
+      }
+
+      const isDone   = agentInfo.status === 'done';
+      const isError  = agentInfo.status === 'error';
+      const lastEntry = history[history.length - 1];
+
+      return (
+        <div className="h-screen bg-slate-950 flex flex-col">
+          {/* Header */}
+          <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur z-10 shrink-0">
+            <div className="px-6 h-14 flex items-center gap-4">
+              <button
+                onClick={() => navigate('/')}
+                className="text-slate-400 hover:text-white transition-colors text-sm flex items-center gap-1.5"
+              >
+                ← Dashboard
+              </button>
+              <div className="w-px h-5 bg-slate-700" />
+              <h1 className="font-bold text-white">{agentInfo.name}</h1>
+              <StatusBadge status={agentInfo.status} size="lg" />
+              <span className="ml-auto text-sm text-slate-500 font-mono">
+                Step {agentInfo.step}
+              </span>
+            </div>
+          </header>
+
+          {/* Body: overview (30%) + history (70%) */}
+          <div className="flex flex-1 min-h-0">
+
+            {/* Left 30% — Overview sidebar */}
+            <div className="w-[30%] shrink-0 border-r border-slate-800 overflow-y-auto bg-slate-900/40">
+              <AgentOverview agentInfo={agentInfo} history={history} />
+            </div>
+
+            {/* Right 70% — History timeline */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="px-6 py-8 space-y-6">
+                {history.length === 0 && !inProgress && (
+                  <div className="flex flex-col items-center justify-center py-32 text-slate-600">
+                    <p className="text-5xl mb-4">🐟</p>
+                    <p className="text-lg">Waiting for agent to start…</p>
+                  </div>
+                )}
+
+                {history.map(entry => (
+                  <StepCard key={entry.step} entry={entry} />
+                ))}
+
+                {inProgress && <InProgressCard inProgress={inProgress} />}
+
+                {(isDone || isError) && history.length > 0 && (
+                  <JourneyEndCard lastEntry={lastEntry} status={agentInfo.status} totalSteps={history.length} />
+                )}
+
+                <div ref={historyEndRef} />
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── Agent overview sidebar ────────────────────────────────────────────────
+
+    function AgentOverview({ agentInfo, history }) {
+      const brands = [...new Set(
+        history.map(h => {
+          try { return new URL(h.url).hostname.replace(/^www\./, '') } catch { return null }
+        }).filter(Boolean)
+      )];
+
+      const lastEntry   = history[history.length - 1];
+      const finalEntry  = lastEntry?.query === 'DONE' ? lastEntry : null;
+      const isRunning   = agentInfo.status === 'tinyfish' || agentInfo.status === 'openai';
+
+      return (
+        <div className="p-5 space-y-7">
+
+          {/* Status */}
+          <div>
+            <p className="text-xs text-slate-600 uppercase tracking-widest font-medium mb-2">Status</p>
+            <StatusBadge status={agentInfo.status} size="lg" />
+          </div>
+
+          {/* Current page — only while running */}
+          {isRunning && agentInfo.currentUrl && (
+            <div>
+              <p className="text-xs text-slate-600 uppercase tracking-widest font-medium mb-2">Current Page</p>
+              <p className="text-xs font-mono text-blue-400 break-all leading-relaxed">{agentInfo.currentUrl}</p>
+            </div>
+          )}
+
+          {/* Final decision — shown when done */}
+          {finalEntry && (
+            <div>
+              <p className="text-xs text-slate-600 uppercase tracking-widest font-medium mb-2">Final Decision</p>
+              <div className="bg-green-950/30 border border-green-800/40 rounded-xl p-3">
+                <p className="text-sm text-green-200 leading-relaxed italic">"{finalEntry.reasoning}"</p>
+              </div>
+            </div>
+          )}
+
+          {/* Brands interacted with */}
+          {brands.length > 0 && (
+            <div>
+              <p className="text-xs text-slate-600 uppercase tracking-widest font-medium mb-3">Brands Visited</p>
+              <div className="flex flex-col gap-2">
+                {brands.map(brand => (
+                  <div key={brand} className="flex items-center gap-2 text-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-slate-600 shrink-0" />
+                    <span className="text-slate-300 font-medium truncate">{brand}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Steps summary */}
+          {history.length > 0 && (
+            <div>
+              <p className="text-xs text-slate-600 uppercase tracking-widest font-medium mb-2">Progress</p>
+              <p className="text-2xl font-bold text-white">{history.length}</p>
+              <p className="text-xs text-slate-500">pages visited</p>
+            </div>
+          )}
+
+        </div>
+      );
+    }
+
+    // ── Journey end card ──────────────────────────────────────────────────────
+
+    function JourneyEndCard({ lastEntry, status, totalSteps }) {
+      const satisfied = lastEntry?.query === 'DONE';
+      // The final product page is the URL of the last entry (where OpenAI chose to stop)
+      const finalUrl  = lastEntry?.url;
+      const finalText = lastEntry?.page_text;
+
+      return (
+        <div className={`rounded-2xl border overflow-hidden
+          ${satisfied ? 'border-green-800/50' : 'border-orange-800/50'}`}>
+
+          {/* Header */}
+          <div className={`px-6 py-4 flex items-center gap-3
+            ${satisfied ? 'bg-green-950/30' : 'bg-orange-950/30'}`}>
+            <span className="text-2xl">{satisfied ? '✅' : '⚠️'}</span>
+            <div>
+              <h3 className={`font-bold text-base ${satisfied ? 'text-green-400' : 'text-orange-400'}`}>
+                {satisfied ? 'Journey Complete' : 'Journey Ended'}
+              </h3>
+              <p className="text-xs text-slate-500">{totalSteps} pages visited</p>
+            </div>
+          </div>
+
+          {/* Final reasoning */}
+          {lastEntry?.reasoning && (
+            <div className="px-6 py-4 border-t border-slate-800">
+              <p className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-2">Final Reasoning</p>
+              <p className="text-sm text-slate-300 italic leading-relaxed">"{lastEntry.reasoning}"</p>
+            </div>
+          )}
+
+          {/* Final product page */}
+          {finalText && (
+            <div className="px-6 py-4 border-t border-slate-800">
+              <p className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-2">Final Page Content</p>
+              <p className="text-sm text-slate-300 leading-relaxed">{finalText}</p>
+            </div>
+          )}
+
+          {/* Link to final page */}
+          {finalUrl && (
+            <div className="px-6 py-4 border-t border-slate-800 bg-slate-900/40">
+              <p className="text-xs text-slate-500 uppercase tracking-wider font-medium mb-2">Final Page</p>
+              <a
+                href={finalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 font-mono break-all transition-colors"
+              >
+                🔗 {finalUrl}
+              </a>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ── Screenshot helper ─────────────────────────────────────────────────────
+
+    function PageScreenshot({ url, base64 }) {
+      if (!base64 && !url) return null;
+      const src = base64
+        ? `data:image/png;base64,${base64}`
+        : `https://s0.wordpress.com/mshots/v1/${encodeURIComponent(url)}?w=1200`;
+      return (
+        <div className="rounded-lg overflow-hidden border border-slate-700 bg-slate-800 mt-3">
+          {/* fake browser chrome */}
+          <div className="flex items-center gap-1.5 px-3 py-2 bg-slate-800 border-b border-slate-700">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500/60" />
+            <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/60" />
+            <span className="w-2.5 h-2.5 rounded-full bg-green-500/60" />
+            <span className="ml-2 text-xs text-slate-500 font-mono truncate flex-1">{url}</span>
+          </div>
+          <img
+            src={src}
+            alt="Page screenshot"
+            className="w-full object-cover object-top"
+          />
+        </div>
+      );
+    }
+
+    // ── Completed step card ───────────────────────────────────────────────────
+
+    function StepCard({ entry }) {
+      const [linksOpen, setLinksOpen] = useState(false);
+      const linkCount = Object.keys(entry.links ?? {}).length;
+
+      const actionLabel = entry.action === 'click'
+        ? `Clicked link [${entry.index}]`
+        : entry.query === 'DONE'
+          ? 'Finished browsing'
+          : `New search: "${entry.query}"`;
+
+      const chosenLink = entry.action === 'click'
+        ? entry.links?.[String(entry.index)]
+        : null;
+
+      return (
+        <div className="rounded-2xl border border-slate-800 overflow-hidden">
+          {/* Step number */}
+          <div className="bg-slate-900 px-5 py-3 flex items-center gap-3 border-b border-slate-800">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Step {entry.step}</span>
+            <a href={entry.url} target="_blank" rel="noopener noreferrer"
+               className="text-xs font-mono text-slate-600 hover:text-blue-400 truncate transition-colors">
+              {entry.url}
+            </a>
+          </div>
+
+          {/* TinyFish — screenshot + text */}
+          <div className="bg-blue-950/10 border-b border-slate-800">
+            <div className="px-5 pt-4 pb-1 flex items-center gap-2">
+              <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">🐟 TinyFish</span>
+              <span className="text-xs text-slate-600">browsed page</span>
+            </div>
+            <div className="px-5 pb-4">
+              <PageScreenshot url={entry.url} base64={entry.screenshot_base64} />
+              <p className="mt-3 text-sm text-slate-300 leading-relaxed">{entry.page_text}</p>
+              {linkCount > 0 && (
+                <div className="mt-3">
+                  <button
+                    onClick={() => setLinksOpen(o => !o)}
+                    className="text-xs text-blue-500 hover:text-blue-400 transition-colors"
+                  >
+                    {linksOpen ? '▾' : '▸'} {linkCount} links found
+                  </button>
+                  {linksOpen && (
+                    <div className="mt-2 space-y-1.5 max-h-52 overflow-y-auto bg-slate-900/60 rounded-lg p-3">
+                      {Object.entries(entry.links).map(([idx, link]) => (
+                        <div key={idx} className="flex items-start gap-2 text-xs">
+                          <span className="text-slate-600 font-mono shrink-0">[{idx}]</span>
+                          <a href={link.url} target="_blank" rel="noopener noreferrer"
+                             className="text-slate-400 hover:text-blue-400 transition-colors">
+                            {link.text}
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* OpenAI — reasoning + decision */}
+          <div className="bg-purple-950/10 px-5 py-4">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">🤖 OpenAI</span>
+              <span className="text-xs text-slate-600">decided</span>
+            </div>
+            <p className="text-sm text-slate-300 leading-relaxed italic mb-3">"{entry.reasoning}"</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold
+                ${entry.action === 'click' ? 'bg-blue-900/70 text-blue-200' : 'bg-purple-900/70 text-purple-200'}`}>
+                {entry.action === 'click' ? '🔗' : '🔍'} {actionLabel}
+              </span>
+              {chosenLink && (
+                <a href={chosenLink.url} target="_blank" rel="noopener noreferrer"
+                   className="text-xs text-slate-500 hover:text-blue-400 font-mono truncate max-w-sm transition-colors">
+                  {chosenLink.url}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ── In-progress step card ─────────────────────────────────────────────────
+
+    function InProgressCard({ inProgress }) {
+      return (
+        <div className="rounded-2xl border border-blue-800/50 overflow-hidden ring-1 ring-blue-500/10">
+          {/* Step header */}
+          <div className="bg-slate-900 px-5 py-3 flex items-center gap-3 border-b border-slate-800">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Step {inProgress.step}</span>
+            <span className="text-xs font-mono text-slate-600 truncate">{inProgress.url}</span>
+            <span className="ml-auto flex items-center gap-1.5 text-blue-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 pulse-dot" />
+              In progress
+            </span>
+          </div>
+
+          {/* TinyFish phase */}
+          <div className="bg-blue-950/10 border-b border-slate-800">
+            <div className="px-5 pt-4 pb-1 flex items-center gap-2">
+              <span className="text-xs font-bold text-blue-400 uppercase tracking-wider">🐟 TinyFish</span>
+              {inProgress.phase === 'tinyfish' ? (
+                <span className="flex items-center gap-1 text-xs text-blue-500">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 pulse-dot" /> browsing…
+                </span>
+              ) : (
+                <span className="text-xs text-slate-600">done</span>
+              )}
+            </div>
+            <div className="px-5 pb-4">
+              {inProgress.messages.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {inProgress.messages.map((msg, i) => (
+                    <p key={i} className="text-xs text-slate-600 font-mono">↳ {msg}</p>
+                  ))}
+                </div>
+              )}
+              {inProgress.pageState ? (
+                <>
+                  <PageScreenshot url={inProgress.url} base64={inProgress.pageState?.screenshot_base64} />
+                  <p className="mt-3 text-sm text-slate-300 leading-relaxed">{inProgress.pageState.page_text}</p>
+                </>
+              ) : (
+                inProgress.phase === 'tinyfish' && (
+                  <div className="mt-3 h-32 rounded-lg bg-slate-800/60 border border-slate-700 flex items-center justify-center">
+                    <p className="text-xs text-slate-600 italic">Loading page…</p>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+
+          {/* OpenAI phase */}
+          {(inProgress.phase === 'openai' || inProgress.decision) && (
+            <div className="bg-purple-950/10 px-5 py-4">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xs font-bold text-purple-400 uppercase tracking-wider">🤖 OpenAI</span>
+                {inProgress.phase === 'openai' && !inProgress.decision ? (
+                  <span className="flex items-center gap-1 text-xs text-purple-500">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400 pulse-dot" /> deciding…
+                  </span>
+                ) : (
+                  <span className="text-xs text-slate-600">decided</span>
+                )}
+              </div>
+              {inProgress.decision ? (
+                <p className="text-sm text-slate-300 leading-relaxed italic">"{inProgress.decision.reasoning}"</p>
+              ) : (
+                <p className="text-xs text-slate-600 italic">Waiting for decision…</p>
+              )}
+            </div>
+          )}
+
+          {inProgress.error && (
+            <div className="bg-red-950/20 px-5 py-3 border-t border-slate-800">
+              <p className="text-xs text-red-400 font-mono">Error: {inProgress.error}</p>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ── App router ────────────────────────────────────────────────────────────
+
+    function App() {
+      const route = useRoute();
+
+      if (route.startsWith('/agent/')) {
+        const agentId = route.slice('/agent/'.length);
+        return <AgentPage agentId={agentId} />;
+      }
+
+      return <Dashboard />;
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
